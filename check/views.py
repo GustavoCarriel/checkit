@@ -3,6 +3,11 @@ from .models import Equipamento, RegistroTransacao
 from django.utils import timezone
 from django.contrib import messages
 
+
+# Index
+def index(request):
+    return render(request, 'index.html')
+
 # Função para retirar equipamento
 def retirar_equipamento(request, equipamento_id):
     equipamento = get_object_or_404(Equipamento, id=equipamento_id)
