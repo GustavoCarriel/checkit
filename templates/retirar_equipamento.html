@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container my-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form action="{% url 'retirar_equipamento' equipamento.id %}" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="numeroSerialInput" class="form-label">Número de Série</label>
+            <input type="text" class="form-control" id="numeroSerialInput" name="numero_serial" required>
+        </div>
+        <div class="mb-3">
+            <label for="loginUsuarioInput" class="form-label">Login do Colaborador</label>
+            <input type="text" class="form-control" id="loginUsuarioInput" name="usuario_login" required>
+        </div>
+        <div class="mb-3">
+            <label for="modeloInput" class="form-label">Tipo</label>
+            <select class="form-select" name="tipo" required>
+                <option selected>-- Selecione --</option>
+                <option value="Retirada">Retirada</option>
+                <option value="Devolução">Devolução</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+</div>
+{% endblock %}

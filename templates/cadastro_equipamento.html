@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container">
+    <!-- Bloco para exibir mensagens de erro ou sucesso -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Formulário para cadastro de equipamentos -->
+    <form method="post" action="{% url 'cadastrar_equipamento' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="numeroSerialInput" class="form-label">Número de Série</label>
+            <input type="text" name="numeroSerialInput" class="form-control" id="numeroSerialInput">
+        </div>
+        <div class="mb-3">
+            <label for="marcaEquipamentoInput" class="form-label">Marca Equipamento</label>
+            <input type="text" name="marcaEquipamentoInput" class="form-control" id="marcaEquipamentoInput">
+        </div>
+        <div class="mb-3">
+            <label for="modeloEquipamentoInput" class="form-label">Modelo Equipamento</label>
+            <input type="text" name="modeloEquipamentoInput" class="form-control" id="modeloEquipamentoInput">
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+</div>
+{% endblock %}
