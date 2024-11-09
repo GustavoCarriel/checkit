@@ -10,6 +10,21 @@ class Equipamento(models.Model):
 
     def __str__(self):
         return f"{self.marca} {self.modelo} - {self.serial_number}"
+    
+class Usuario(models.Model):
+    TURNOS = [
+        ('T1', 'Manhã'),
+        ('T2', 'Tarde'),
+        ('T3', 'Noite'),
+    ]
+
+    login_usuario = models.CharField(max_length=15, unique=True)
+    nome_usuario = models.CharField(max_length=50)
+    turno_usuario = models.CharField(max_length=2, choices=TURNOS)
+    coordenador = models.CharField(max_length=50, blank=True, null=True)  # Ou você pode usar um relacionamento caso "coordenador" seja outro usuário
+
+    def __str__(self):
+        return f"{self.nome_usuario} ({self.login_usuario})"
 
 # Modelo de Registro de Transações (Retirada e Devolução)
 class RegistroTransacao(models.Model):

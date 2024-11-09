@@ -10,7 +10,7 @@
             </div>
         {% endfor %}
     {% endif %}
-    <form action="{% url 'retirar_equipamento' equipamento.id %}" method="POST">
+    <form action="{% url 'devolver_equipamento' equipamento.id %}" method="POST">
         {% csrf_token %}
         <div class="mb-3">
             <label for="numeroSerialInput" class="form-label">Número de Série</label>
