@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Cadastrar Usuário</h2>
+  
+  <form method="POST">
+    {% csrf_token %}
+    
+    <label for="login_usuario">Login:</label>
+    <input type="text" id="login_usuario" name="login_usuario" maxlength="15" required>
+    <br><br>
+    
+    <label for="nome_usuario">Nome:</label>
+    <input type="text" id="nome_usuario" name="nome_usuario" maxlength="50" required>
+    <br><br>
+    
+    <label for="turno_usuario">Turno:</label>
+    <select id="turno_usuario" name="turno_usuario" required>
+        <option value="T1">Manhã</option>
+        <option value="T2">Tarde</option>
+        <option value="T3">Noite</option>
+    </select>
+    <br><br>
+    
+    <label for="coordenador">Coordenador:</label>
+    <input type="text" id="coordenador" name="coordenador" maxlength="50">
+    <br><br>
+    
+    <button type="submit" class="btn btn-primary">Cadastrar</button>
+  </form>
+  
+  <br>
+  <a href="{% url 'index' %}">Voltar para a página inicial</a>
+{% endblock %}

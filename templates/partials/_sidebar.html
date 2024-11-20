@@ -1,1 +1,19 @@
 {% load static %}
+
+{% block content %}
+<!-- Sidebar  -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h3>CHECK IT</h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li class="px-2">
+            <a href="{% url 'index' %}"><i class="bi bi-bar-chart-fill"></i> Dashboard</a>
+        </li>
+        <li class="px-2">
+            <a href="{% url 'buscar_equipamentos' %}"><i class="bi bi-search"></i></i> Buscar</a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}

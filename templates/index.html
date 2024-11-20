@@ -2,43 +2,5 @@
 
 {% load static %}
 {% block content %}
-<div class="container my-5">
-    
-    {% if erro %}
-    <p class="text-danger">{{ erro }}</p>
-    {% endif %}
-    <form method="GET" action="{% url 'buscar_equipamentos' %}">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" name="sn" placeholder="Digite o número de série do equipamento"
-                aria-label="Número de Série" aria-describedby="button-addon2" required>
-            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Buscar</button>
-        </div>
-    </form>
 
-    {% if equipamentos %}
-        <h3>Resultados da Busca:</h3>
-        <ul>
-            {% for equipamento in equipamentos %}
-            <li>{{ equipamento.marca }} - {{ equipamento.modelo }} (SN: {{ equipamento.serial_number }})
-                {% if equipamento.status == 'Disponível' %}
-                    <!-- Botão para retirar estará habilitado quando o status for 'Disponível' -->
-                    <a href="{% url 'retirar_equipamento' equipamento.id %}" class="btn btn-primary">Retirar</a>
-                    <button class="btn btn-secondary" disabled>Devolver</button>
-                {% elif equipamento.status == 'Retirado' %}
-                    <!-- Botão para devolver estará habilitado quando o status for 'Retirado' -->
-                    <button class="btn btn-secondary" disabled>Retirar</button>
-                    <a href="{% url 'devolver_equipamento' equipamento.id %}" class="btn btn-primary">Devolver</a>
-                {% else %}
-                    <p class="text-danger">Status desconhecido</p>
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-    {% elif equipamentos is not None %}
-        <p class="text-danger">Nenhum equipamento encontrado com esse número de série.</p>
-    {% endif %}
-
-
-</div>
 {% endblock %}

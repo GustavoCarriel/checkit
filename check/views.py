@@ -8,6 +8,32 @@ from django.contrib import messages
 def index(request):
     return render(request, 'index.html')
 
+def cadastrar_usuario(request):
+    if request.method == 'POST':
+        login_usuario = request.POST.get('login_usuario')
+        nome_usuario = request.POST.get('nome_usuario')
+        turno_usuario = request.POST.get('turno_usuario')
+        coordenador = request.POST.get('coordenador')
+        
+        # Validação simples para verificar se o login já existe
+        if Usuario.objects.filter(login_usuario=login_usuario).exists():
+            messages.error(request, "Esse login já está em uso.")
+            return redirect('cadastrar_usuario')
+        
+        # Cria e salva o novo usuário
+        usuario = Usuario(
+            login_usuario=login_usuario,
+            nome_usuario=nome_usuario,
+            turno_usuario=turno_usuario,
+            coordenador=coordenador
+        )
+        usuario.save()
+        
+        messages.success(request, "Usuário cadastrado com sucesso!")
+        return redirect('index')  # Substitua 'index' pela página de redirecionamento desejada
+
+    return render(request, 'cadastrar_usuario.html')
+
 def cadastrar_equipamentos(request):
     if request.method == 'POST':
         numero_serie = request.POST.get('numeroSerialInput', '').strip()
@@ -45,7 +71,7 @@ def buscar_equipamentos(request):
             erro = "Nenhum equipamento encontrado combuscar_equipamento.html esse número de série."
 
     # Renderiza o template com os resultados da busca ou a mensagem de erro
-    return render(request, 'index.html', {'equipamentos': equipamentos, 'erro': erro})
+    return render(request, 'buscar_equipamento.html', {'equipamentos': equipamentos, 'erro': erro})
 
 def buscar_usuario(login_usuario):
     """
@@ -76,13 +102,13 @@ def retirar_equipamento(request, equipamento_id):
             equipamento.status = 'Retirado'
             transacao = RegistroTransacao(
                 equipamento=equipamento,
-                usuario_login=usuario,
+                usuario_login=usuario.login_usuario,
                 tipo='Retirada',
                 timestamp=timezone.now()
             )
             equipamento.save()
             transacao.save()
-            messages.success(request, "Equipamento retirado com sucesso!")
+            # messages.success(request, "Equipamento retirado com sucesso!")
             return redirect('index')
         else:
             messages.error(request, "Equipamento não está disponível.")
@@ -119,7 +145,7 @@ def devolver_equipamento(request, equipamento_id):
             )
             equipamento.save()
             transacao.save()
-            messages.success(request, "Equipamento devolvido com sucesso!")
+            # messages.success(request, "Equipamento devolvido com sucesso!")
             return redirect('index')
         else:
             # Exibe uma mensagem de erro se o login do usuário não corresponde ao da retirada

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container my-5">
+
+    {% if erro %}
+    <p class="text-danger">{{ erro }}</p>
+    {% endif %}
+    <div class="row">
+        <form method="GET" action="{% url 'buscar_equipamentos' %}">
+            {% csrf_token %}
+            <div class="col-md-6">
+                <label for="exampleFormControlInput1" class="form-label">Pesquisar Equipamento</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control border-primary" name="sn" placeholder="S/N"
+                        aria-label="Número de Série" aria-describedby="button-addon2" required>
+                    <button class="btn btn-outline-primary" type="submit" id="button-addon2"><i
+                            class="bi bi-search"></i></button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+
+    <div class="container mt-5 px-2">
+        <div class="table-responsive">
+            {% if equipamentos %}
+            <table class="table table-responsive table-borderless">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col" width="5%">#</th>
+                        <th scope="col" width="15%">Marca</th>
+                        <th scope="col" width="15%">Modelo</th>
+                        <th scope="col" width="20%">Número de Série</th>
+                        <th scope="col" width="20%">Status</th>
+                        <th scope="col" width="20%">Ações</th>
+                    </tr>
+                </thead>
+                {% for equipamento in equipamentos %}
+                <tbody>
+                    <tr>
+                        <td>{{ equipamento.id }}</td>
+                        <td>{{ equipamento.marca }}</td>
+                        <td>{{ equipamento.modelo }}</span></td>
+                        <td>{{ equipamento.serial_number }}</td>
+                        <td>
+                            {% if equipamento.status == 'Disponível' %}
+                            <i class="bi bi-circle-fill text-success"></i> Disponível
+                            {% elif equipamento.status == 'Retirado' %}
+                            <i class="bi bi-circle-fill text-warning"></i> Operação
+                            {% else %}
+                            Null
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if equipamento.status == 'Disponível' %}
+                            <!-- Botão para retirar estará habilitado quando o status for 'Disponível' -->
+                            <a href="{% url 'retirar_equipamento' equipamento.id % }"
+                                class="btn btn-primary">Retirar</a>
+                            <button class="btn btn-secondary" disabled>Devolver</button>
+                            {% elif equipamento.status == 'Retirado' %}
+                            <!-- Botão para devolver estará habilitado quando o status for 'Retirado' -->
+                            <a href="{% url 'devolver_equipamento' equipamento.id %}"
+                                class="btn btn-primary">Devolver</a>
+                            <button class="btn btn-secondary" disabled>Retirar</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% elif equipamentos is not None %}
+    <p class="text-danger">Nenhum equipamento encontrado com esse número de série.</p>
+    {% endif %}
+
+
+</div>
+{% endblock %}
