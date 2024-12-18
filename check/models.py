@@ -17,20 +17,6 @@ class Equipamento(models.Model):
         return f"{self.marca} {self.modelo} - {self.serial_number}"
 
 
-# Usuários do sistema (administradores ou operadores)
-# class UsuarioSistema(AbstractUser):
-#     TURNOS = [
-#         ('T1', 'Manhã'),
-#         ('T2', 'Tarde'),
-#         ('T3', 'Noite'),
-#     ]
-    
-#     turno_usuario = models.CharField(max_length=2, choices=TURNOS)
-#     criado_em = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"{self.username} ({self.cargo})"
-    
 # Modelo de Usuario
 class Usuario(models.Model):
     TURNOS = [
