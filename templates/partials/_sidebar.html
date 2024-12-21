@@ -14,6 +14,12 @@
         <li class="px-2">
             <a href="{% url 'buscar_equipamentos' %}"><i class="bi bi-search"></i></i> Buscar</a>
         </li>
+        <li class="px-2">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        </li>
     </ul>
 </nav>
 {% endblock %}

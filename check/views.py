@@ -1,10 +1,12 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Equipamento, RegistroTransacao, Usuario
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -24,29 +26,36 @@ def index(request):
 
 
 def custom_login(request):
-    """
-    View personalizada para realizar o login de usuários.
-
-    Args:
-        request (HttpRequest): Objeto que contém os dados da solicitação HTTP.
-
-    Returns:
-        HttpResponse: 
-            - Redireciona para a página inicial ou rota especificada após o login bem-sucedido.
-            - Renderiza o template 'login.html' com o formulário de autenticação em caso de falha ou solicitação GET.
-    """
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+
+            # Verifica se o usuário é superusuário
+            # if user.is_superuser:
+            #     print("Superusuário detectado - Redirecionando para admin.")
+            #     return redirect('admin:index')  # Redireciona para o admin se for superusuário
             
-            # Se houver um parâmetro 'next' no URL, redireciona para essa página
-            next_url = request.GET.get('next', '')  # Substitua 'home' pela rota padrão de redirecionamento
-            return redirect(next_url)
+            # Verifica se o usuário pertence a um grupo específico
+            if user.groups.filter(name='GrupoEspecifico').exists():
+                print(f"Usuário no grupo 'GrupoEspecifico' - Redirecionando para index.")
+                return redirect('index')  # Redireciona para a página inicial ou uma página específica para o grupo
+            
+            # Caso o usuário não seja superusuário nem pertença ao grupo
+            next_url = request.GET.get('next', '')  # Se houver um parâmetro 'next' no URL, redireciona para essa página
+            if next_url:
+                print(f"Redirecionando para o URL 'next': {next_url}")
+                return HttpResponseRedirect(next_url)  # Garantir redirecionamento para o valor de 'next'
+            else:
+                print("Redirecionando para a página inicial.")
+                return redirect('index')  # Redireciona para a página inicial como fallback
+        else:
+            print("Formulário inválido.")
+            messages.error(request, "Login ou senha inválidos. Tente novamente.")
     else:
         form = AuthenticationForm()
-    
+
     return render(request, 'login.html', {'form': form})
 
 
@@ -89,6 +98,16 @@ def cadastrar_usuario(request):
         return redirect('index')  # Substitua 'index' pela página de redirecionamento desejada
 
     return render(request, 'cadastrar_usuario.html')
+
+
+@csrf_exempt
+@login_required
+def auto_logout(request):
+    """
+    Realiza logout automático do usuário.
+    """
+    logout(request)
+    return redirect('login')  # Redirecione para a página de login
 
 
 

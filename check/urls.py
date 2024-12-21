@@ -10,5 +10,5 @@ urlpatterns = [
     path('buscar_equipamentos/', views.buscar_equipamentos, name='buscar_equipamentos'),
     path('cadastrar_usuario/', views.cadastrar_usuario, name='cadastrar_usuario'),
     path('login/', views.custom_login, name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('auto_logout/', views.auto_logout, name='auto_logout'),
     ]
