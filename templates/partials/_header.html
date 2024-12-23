@@ -1,10 +1,13 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container my-4 d-flex justify-content-between">
     <button type="button" id="sidebarCollapse" class="btn btn-primary">
-        <i class="fas fa-align-left"></i>
-        <span><i class="bi bi-list"></i></span>
+        <span><i class="bi bi-list fs-5"></i></span>
     </button>
+    <form method="post" action="{% url 'auto_logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-dark">Sair</button>
+    </form>
 </div>
 {% endblock %}

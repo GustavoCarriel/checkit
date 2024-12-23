@@ -95,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -124,3 +124,10 @@ LOGOUT_URL = '/logout/'
 
 SESSION_COOKIE_AGE = 600  # Tempo em segundos (10 minutos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Opcional: Expira ao fechar o navegador
+
+
+# Middleware e configurações extras para segurança, como
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

@@ -2,43 +2,122 @@
 
 {% load static %}
 {% block content %}
-<link rel="stylesheet" href="{% static '/styles/login.css' %}">
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
 
 <div class="container">
     <div class="row my-3">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Shein-logo.png/1200px-Shein-logo.png" class="img-logo-shein" alt="">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Shein-logo.png/1200px-Shein-logo.png"
+            class="img-logo-shein" alt="">
+    </div>
+
+    <div id="customAlert" class="alert alert-danger d-flex align-items-center floating-alert" role="alert"
+        style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red"
+            class="size-6" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
+        <div class="ms-3">
+            <span id="alertMessage">Mensagem de alerta</span>
+        </div>
+        <button type="button" class="btn-close ms-auto" aria-label="Close" onclick="hideAlert()"></button>
     </div>
 
     <div class="container container-login">
-        <form class="form" method="post" action="{% url 'login' %}">
+        <form class="form" method="post" action="{% url 'login' %}" id="loginForm">
             {% csrf_token %}
             <div class="flex-column">
                 <label for="id_username">Usuário</label>
             </div>
             <div class="inputForm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="20" fill="white" viewBox="0 0 24 24"
-                     stroke-width="1.5" stroke="currentColor" class="size-6">
+                    stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                 </svg>
                 <input placeholder="Usuário" class="input" type="text" name="username" id="id_username">
             </div>
-        
+
             <div class="flex-column">
                 <label for="id_password">Senha</label>
             </div>
             <div class="inputForm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="30" height="20" viewBox="0 0 24 24"
-                     stroke-width="1.5" stroke="currentColor" class="size-6">
+                    stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                 </svg>
                 <input placeholder="Senha" class="input" type="password" name="password" id="id_password">
             </div>
-        
+
             <button class="button-submit" type="submit">Entrar</button>
-        </form>        
+        </form>
     </div>
 </div>
+
+<script>
+    // Seleciona o formulário e os campos de entrada
+    const form = document.getElementById("loginForm");
+    const usuario = document.getElementById("id_username");
+    const senha = document.getElementById("id_password");
+
+    // Adiciona o evento de validação ao envio do formulário
+    form.addEventListener("submit", function (event) {
+        // Reseta mensagens de erro
+        usuario.style.border = "";
+        senha.style.border = "";
+
+        // Validações
+        if (usuario.value.trim() === "") {
+            alert("O campo Usuário não pode estar vazio.");
+            usuario.style.border = "2px solid red";
+            usuario.focus();
+            event.preventDefault(); // Impede o envio do formulário
+            return;
+        }
+
+        if (senha.value.trim() === "") {
+            alert("O campo Senha não pode estar vazio.");
+            senha.style.border = "2px solid red";
+            senha.focus();
+            event.preventDefault();
+            return;
+        }
+
+        if (senha.value.length < 6) {
+            alert("A senha deve ter pelo menos 6 caracteres.");
+            senha.style.border = "2px solid red";
+            senha.focus();
+            event.preventDefault();
+            return;
+        }
+
+        // Caso passe em todas as validações
+        alert("Formulário válido!");
+    });
+    
+    function showAlert(message, duration = 3000) {
+        const alertBox = document.getElementById('customAlert');
+        const alertMessage = document.getElementById('alertMessage');
+
+        // Define a mensagem do alerta
+        alertMessage.textContent = message;
+
+        // Mostra o alerta
+        alertBox.style.display = 'flex';
+
+        // Oculta o alerta após o tempo especificado (se `duration` for maior que 0)
+        if (duration > 0) {
+            setTimeout(() => {
+                hideAlert();
+            }, duration);
+        }
+    }
+
+    function hideAlert() {
+        const alertBox = document.getElementById('customAlert');
+        alertBox.style.display = 'none';
+    }
+</script>
 
 {% endblock %}
