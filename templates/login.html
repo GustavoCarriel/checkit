@@ -10,18 +10,16 @@
             class="img-logo-shein" alt="">
     </div>
 
-    <div id="customAlert" class="alert alert-danger d-flex align-items-center floating-alert" role="alert"
-        style="display: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red"
-            class="size-6" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-        </svg>
-        <div class="ms-3">
-            <span id="alertMessage">Mensagem de alerta</span>
+    <div id="alert-container"></div>
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
         </div>
-        <button type="button" class="btn-close ms-auto" aria-label="Close" onclick="hideAlert()"></button>
-    </div>
+    {% endif %}
 
     <div class="container container-login">
         <form class="form" method="post" action="{% url 'login' %}" id="loginForm">
@@ -69,7 +67,7 @@
 
         // Validações
         if (usuario.value.trim() === "") {
-            alert("O campo Usuário não pode estar vazio.");
+            showAlert("Preencha o campo Usuario!");
             usuario.style.border = "2px solid red";
             usuario.focus();
             event.preventDefault(); // Impede o envio do formulário
@@ -77,46 +75,29 @@
         }
 
         if (senha.value.trim() === "") {
-            alert("O campo Senha não pode estar vazio.");
+            showAlert("Preencha o campo Senha!");
             senha.style.border = "2px solid red";
             senha.focus();
             event.preventDefault();
             return;
         }
-
-        if (senha.value.length < 6) {
-            alert("A senha deve ter pelo menos 6 caracteres.");
-            senha.style.border = "2px solid red";
-            senha.focus();
-            event.preventDefault();
-            return;
-        }
-
-        // Caso passe em todas as validações
-        alert("Formulário válido!");
     });
-    
-    function showAlert(message, duration = 3000) {
-        const alertBox = document.getElementById('customAlert');
-        const alertMessage = document.getElementById('alertMessage');
 
-        // Define a mensagem do alerta
-        alertMessage.textContent = message;
+    function showAlert(message, type = 'warning') {
+        const alertContainer = document.getElementById('alert-container'); // Certifique-se de ter um container no HTML
 
-        // Mostra o alerta
-        alertBox.style.display = 'flex';
+        const alertElement = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="30" stroke-width="1.5" stroke="orange" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
 
-        // Oculta o alerta após o tempo especificado (se `duration` for maior que 0)
-        if (duration > 0) {
-            setTimeout(() => {
-                hideAlert();
-            }, duration);
-        }
-    }
+                    ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
 
-    function hideAlert() {
-        const alertBox = document.getElementById('customAlert');
-        alertBox.style.display = 'none';
+        alertContainer.innerHTML = alertElement;
     }
 </script>
 

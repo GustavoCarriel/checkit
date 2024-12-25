@@ -57,7 +57,7 @@
                         <td>
                             {% if equipamento.status == 'Disponível' %}
                             <!-- Botão para retirar estará habilitado quando o status for 'Disponível' -->
-                            <a href="{% url 'retirar_equipamento' equipamento.id % }"
+                            <a href="{% url 'retirar_equipamento' equipamento.id %}"
                                 class="btn btn-primary">Retirar</a>
                             <button class="btn btn-secondary" disabled>Devolver</button>
                             {% elif equipamento.status == 'Retirado' %}

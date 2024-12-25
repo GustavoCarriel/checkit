@@ -61,5 +61,72 @@
             </div>
         </div>
     </div>
+
+    <div class="container mt-5 p-0">
+        <div class="card-header border-0">
+            <h5 class="mb-3">PDA em operação</h5>
+        </div>
+        <table class="table table-hover table-bordered">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Número de Série</th>
+                    <th>Status</th>
+                    <th>Data de Adição</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipamento in equipamentos %}
+                <tr>
+                    <td>{{ forloop.counter0|add:1 }}</td>
+                    <td>{{ equipamento.nome }}</td>
+                    <td>{{ equipamento.serial_number }}</td>
+                    <td>{{ equipamento.status }}</td>
+                    <td>{{ equipamento.data_adicao }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum equipamento em operação encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Controles de paginação -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if equipamentos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipamentos.previous_page_number }}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for page_num in equipamentos.paginator.page_range %}
+                <li class="page-item {% if page_num == equipamentos.number %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                </li>
+                {% endfor %}
+                {% if equipamentos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipamentos.next_page_number }}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipamentos.paginator.num_pages }}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
 </main>
 {% endblock %}

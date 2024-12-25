@@ -7,6 +7,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+
 
 
 
@@ -26,35 +28,27 @@ def index(request):
 
 
 def custom_login(request):
+    form = AuthenticationForm()  # Cria o formulário vazio por padrão
+
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
 
-            # Verifica se o usuário é superusuário
-            # if user.is_superuser:
-            #     print("Superusuário detectado - Redirecionando para admin.")
-            #     return redirect('admin:index')  # Redireciona para o admin se for superusuário
-            
             # Verifica se o usuário pertence a um grupo específico
             if user.groups.filter(name='GrupoEspecifico').exists():
-                print(f"Usuário no grupo 'GrupoEspecifico' - Redirecionando para index.")
-                return redirect('index')  # Redireciona para a página inicial ou uma página específica para o grupo
-            
-            # Caso o usuário não seja superusuário nem pertença ao grupo
-            next_url = request.GET.get('next', '')  # Se houver um parâmetro 'next' no URL, redireciona para essa página
+                return redirect('index')
+
+            # Redireciona com base no parâmetro 'next'
+            next_url = request.GET.get('next', '')
             if next_url:
-                print(f"Redirecionando para o URL 'next': {next_url}")
-                return HttpResponseRedirect(next_url)  # Garantir redirecionamento para o valor de 'next'
+                return HttpResponseRedirect(next_url)
             else:
-                print("Redirecionando para a página inicial.")
-                return redirect('index')  # Redireciona para a página inicial como fallback
+                return redirect('index')
         else:
-            print("Formulário inválido.")
-            messages.error(request, "Login ou senha inválidos. Tente novamente.")
-    else:
-        form = AuthenticationForm()
+            # Adiciona mensagem de erro apenas em requisições POST inválidas
+            messages.error(request, "Usuário ou senha inválidos. Verifique suas credenciais e tente novamente.")
 
     return render(request, 'login.html', {'form': form})
 
@@ -204,6 +198,35 @@ def buscar_usuario(login_usuario):
         return usuario
     except Usuario.DoesNotExist:
         return None
+    
+    
+@login_required
+def listar_equipamentos_em_operacao(request):
+    """
+    View para listar todos os equipamentos que estão em operação.
+
+    Essa função retorna apenas os equipamentos que possuem o status "em operação"
+    para serem exibidos em uma tabela no template.
+
+    Args:
+        request (HttpRequest): Objeto que contém os dados da solicitação HTTP.
+
+    Returns:
+        HttpResponse:
+            - Renderiza o template 'listar_equipamentos.html' com a lista de equipamentos em operação.
+    """
+    # Filtra os equipamentos que estão em operação
+    equipamentos_em_operacao = Equipamento.objects.filter(status='Retirado')
+
+    # Configura o paginator para limitar a 10 equipamentos por página
+    paginator = Paginator(equipamentos_em_operacao, 10)  # Alterar "10" para o número desejado por página
+
+    # Obtém o número da página a partir dos parâmetros da URL
+    page_number = request.GET.get('page')
+    equipamentos_page = paginator.get_page(page_number)
+
+    # Renderiza o template com a página atual dos equipamentos
+    return render(request, 'listar_equipamentos.html', {'equipamentos': equipamentos_page})
 
 
 
@@ -226,30 +249,35 @@ def retirar_equipamento(request, equipamento_id):
     equipamento = get_object_or_404(Equipamento, id=equipamento_id)
     
     if request.method == 'POST':
+        # Obtém o login do usuário do formulário
         login_usuario = request.POST.get('usuario_login')
         usuario = buscar_usuario(login_usuario)
 
+        # Verifica se o usuário foi encontrado
         if not usuario:
-            messages.error(request, "Por favor, insira o login do usuário.")
+            messages.error(request, f"Usuário com login '{login_usuario}' não encontrado.")
             return redirect('retirar_equipamento', equipamento_id=equipamento_id)
-        
+
+        # Verifica se o equipamento está disponível para retirada
         if equipamento.status == 'Disponível':
             # Atualiza o status do equipamento para "Retirado"
             equipamento.status = 'Retirado'
-            # Cria o registro de transação para a retirada
-            transacao = RegistroTransacao(
+            equipamento.save()
+
+            # Cria o registro de transação
+            RegistroTransacao.objects.create(
                 equipamento=equipamento,
                 usuario_login=usuario.login_usuario,
                 tipo='Retirada',
                 timestamp=timezone.now()
             )
-            # Salva as alterações no banco de dados
-            equipamento.save()
-            transacao.save()
+
+            messages.success(request, f"Equipamento {equipamento.serial_number} retirado com sucesso!")
             return redirect('index')
-        else:
-            messages.error(request, "Equipamento não está disponível.")
-            return redirect('retirar_equipamento', equipamento_id=equipamento_id)
+
+        # Equipamento não está disponível
+        messages.error(request, f"O equipamento {equipamento.serial_number} não está disponível para retirada.")
+        return redirect('retirar_equipamento', equipamento_id=equipamento_id)
 
     return render(request, 'retirar_equipamento.html', {'equipamento': equipamento})
 
