@@ -6,10 +6,10 @@
 <main class="container mt-5">
     <div class="row">
         <!-- Card 1 -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 card-item p-3">
                 <div class="title-item-dashboard">
-                    <span class="bg-primary bg-gradient p-3 rounded">
+                    <span class="bg-primary p-3 rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             height="30" stroke="white" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -24,11 +24,11 @@
             </div>
         </div>
 
-        <!-- Card 1 -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+        <!-- Card 2 -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 card-item p-3">
                 <div class="title-item-dashboard">
-                    <span class="bg-success bg-gradient p-3 rounded">
+                    <span class="bg-success p-3 rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             height="30" stroke="white" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -42,11 +42,12 @@
                 </div>
             </div>
         </div>
-        <!-- Card 1 -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+
+        <!-- Card 3 -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 card-item p-3">
                 <div class="title-item-dashboard">
-                    <span class="bg-warning bg-gradient p-3 rounded">
+                    <span class="bg-warning p-3 rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             height="30" stroke="white" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -60,73 +61,65 @@
                 </div>
             </div>
         </div>
+
+        <!-- Card 4 -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 card-item p-3">
+                <div class="title-item-dashboard">
+                    <span class="bg-danger p-3 rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            height="30" stroke="white" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
+                    </span>
+                </div>
+                <div class="data">
+                    <span class="fw-bold">Não devolvidos</span>
+                    <span class="m-0">20</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container mt-5 p-0">
+    <div class="container mt-5 p-0 col-12">
         <div class="card-header border-0">
             <h5 class="mb-3">PDA em operação</h5>
         </div>
-        <table class="table table-hover table-bordered">
-            <thead class="table-dark text-center">
+        <table id="example" class="table table-striped" style="width: 100%; table-layout: fixed;">
+            <thead class="table-dark">
                 <tr>
                     <th>#</th>
-                    <th>Nome</th>
                     <th>Número de Série</th>
+                    <th>Modelo</th>
+                    <th>Operador</th>
+                    <th>Horário Retirada</th>
                     <th>Status</th>
-                    <th>Data de Adição</th>
                 </tr>
             </thead>
             <tbody>
-                {% for equipamento in equipamentos %}
-                <tr>
-                    <td>{{ forloop.counter0|add:1 }}</td>
-                    <td>{{ equipamento.nome }}</td>
-                    <td>{{ equipamento.serial_number }}</td>
-                    <td>{{ equipamento.status }}</td>
-                    <td>{{ equipamento.data_adicao }}</td>
-                </tr>
+                {% for equipamento in equipamentos_data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ equipamento.serial_number }}</td>
+                        <td>{{ equipamento.modelo }}</td>
+                        <td>{{ equipamento.usuario }}</td>
+                        <td>{{ equipamento.timestamp }}</td>
+                        <td>{{ equipamento.status }}</td>
+                    </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">Nenhum equipamento em operação encontrado.</td>
-                </tr>
+                    <tr>
+                        <td colspan="6" class="text-center">Nenhum equipamento encontrado.</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <!-- Controles de paginação -->
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% if equipamentos.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="Primeira">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ equipamentos.previous_page_number }}" aria-label="Anterior">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-                {% for page_num in equipamentos.paginator.page_range %}
-                <li class="page-item {% if page_num == equipamentos.number %}active{% endif %}">
-                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-                </li>
-                {% endfor %}
-                {% if equipamentos.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ equipamentos.next_page_number }}" aria-label="Próxima">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ equipamentos.paginator.num_pages }}" aria-label="Última">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
     </div>
+    
+    
 </main>
+
+<script>
+    new DataTable('#example');
+</script>
 {% endblock %}

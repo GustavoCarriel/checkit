@@ -8,6 +8,7 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
+import logging
 
 
 
@@ -23,8 +24,59 @@ def index(request):
     Returns:
         HttpResponse: Resposta renderizando o template 'index.html'.
     """
-    return render(request, 'index.html')
+    equipamentos_data = []
+    
+    # Obtem todos os equipamentos
+    equipamentos = Equipamento.objects.all()
 
+    for equipamento in equipamentos:
+        if equipamento.status == 'Retirada':
+            # Busca o último registro de transação do equipamento, se existir
+            ultima_transacao = RegistroTransacao.objects.filter(equipamento=equipamento).order_by('-timestamp').first()
+
+            # Se a transação for encontrada
+            if ultima_transacao:
+                equipamentos_data.append({
+                    'id': equipamento.id,
+                    'serial_number': equipamento.serial_number,
+                    'modelo': equipamento.modelo,
+                    'marca': equipamento.marca,
+                    'status': equipamento.status,
+                    'tipo_transacao': ultima_transacao.tipo,
+                    'usuario': ultima_transacao.usuario_login,
+                    'timestamp': ultima_transacao.timestamp,
+                })
+            else:
+                # Caso não haja transação, preenche com dados padrão
+                equipamentos_data.append({
+                    'id': equipamento.id,
+                    'serial_number': equipamento.serial_number,
+                    'modelo': equipamento.modelo,
+                    'marca': equipamento.marca,
+                    'status': equipamento.status,
+                    'tipo_transacao': 'Não encontrado',
+                    'usuario': 'Não disponível',
+                    'timestamp': 'Não disponível',
+                })
+        else:
+            continue
+    
+    # Caso não haja equipamentos, adiciona uma linha indicando que não há dados
+    if not equipamentos_data:
+        equipamentos_data.append({
+            'id': '-',
+            'serial_number': '-',
+            'modelo': '-',
+            'marca': '-',
+            'status': '-',
+            'tipo_transacao': '-',
+            'usuario': '-',
+            'timestamp': '-',
+        })
+    
+    print(equipamentos_data)
+
+    return render(request, 'index.html', {'equipamentos_data': equipamentos_data})
 
 
 def custom_login(request):
@@ -51,7 +103,6 @@ def custom_login(request):
             messages.error(request, "Usuário ou senha inválidos. Verifique suas credenciais e tente novamente.")
 
     return render(request, 'login.html', {'form': form})
-
 
 
 @login_required
@@ -333,3 +384,58 @@ def devolver_equipamento(request, equipamento_id):
             return redirect('devolver_equipamento', equipamento_id=equipamento_id)
 
     return render(request, 'devolver_equipamento.html', {'equipamento': equipamento})
+
+
+def dashboard_data_table(request):
+    equipamentos_data = []
+    
+    # Obtem todos os equipamentos
+    equipamentos = Equipamento.objects.all()
+
+    for equipamento in equipamentos:
+        if equipamento.status == 'Retirada':
+            # Busca o último registro de transação do equipamento, se existir
+            ultima_transacao = RegistroTransacao.objects.filter(equipamento=equipamento).order_by('-timestamp').first()
+
+            # Se a transação for encontrada
+            if ultima_transacao:
+                equipamentos_data.append({
+                    'id': equipamento.id,
+                    'serial_number': equipamento.serial_number,
+                    'modelo': equipamento.modelo,
+                    'marca': equipamento.marca,
+                    'status': equipamento.status,
+                    'tipo_transacao': ultima_transacao.tipo,
+                    'usuario': ultima_transacao.usuario_login,
+                    'timestamp': ultima_transacao.timestamp,
+                })
+            else:
+                # Caso não haja transação, preenche com dados padrão
+                equipamentos_data.append({
+                    'id': equipamento.id,
+                    'serial_number': equipamento.serial_number,
+                    'modelo': equipamento.modelo,
+                    'marca': equipamento.marca,
+                    'status': equipamento.status,
+                    'tipo_transacao': 'Não encontrado',
+                    'usuario': 'Não disponível',
+                    'timestamp': 'Não disponível',
+                })
+        else:
+            continue
+    
+    # Caso não haja equipamentos, adiciona uma linha indicando que não há dados
+    if not equipamentos_data:
+        equipamentos_data.append({
+            'id': '-',
+            'serial_number': '-',
+            'modelo': '-',
+            'marca': '-',
+            'status': '-',
+            'tipo_transacao': '-',
+            'usuario': '-',
+            'timestamp': '-',
+        })
+    
+    print(equipamentos_data)
+    return render(request, 'index.html', {'equipamentos_data': equipamentos_data})
