@@ -8,7 +8,10 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
-import logging
+from django.db.models import Count, F
+import json
+from django.db.models.functions import ExtractWeekDay
+
 
 
 
@@ -24,13 +27,16 @@ def index(request):
     Returns:
         HttpResponse: Resposta renderizando o template 'index.html'.
     """
+
+    # ====================================
+    # Data Table
+    # ====================================
+
     equipamentos_data = []
-    
     # Obtem todos os equipamentos
     equipamentos = Equipamento.objects.all()
-
     for equipamento in equipamentos:
-        if equipamento.status == 'Retirada':
+        if equipamento.status == 'Retirado':
             # Busca o último registro de transação do equipamento, se existir
             ultima_transacao = RegistroTransacao.objects.filter(equipamento=equipamento).order_by('-timestamp').first()
 
@@ -73,10 +79,12 @@ def index(request):
             'usuario': '-',
             'timestamp': '-',
         })
-    
-    print(equipamentos_data)
 
-    return render(request, 'index.html', {'equipamentos_data': equipamentos_data})
+
+    chart_data = dashboard_view_porcentagem_modelo()
+    chart_data2 = pda_retirado_por_turno()
+
+    return render(request, 'index.html', {'equipamentos_data': equipamentos_data, 'chart_data': chart_data, 'chart_data2': chart_data2})
 
 
 def custom_login(request):
@@ -228,8 +236,6 @@ def buscar_equipamentos(request):
     return render(request, 'buscar_equipamento.html', {'equipamentos': equipamentos, 'erro': erro})
 
 
-
-@login_required
 def buscar_usuario(login_usuario):
     """
     Busca um usuário pelo login de usuário fornecido.
@@ -333,7 +339,6 @@ def retirar_equipamento(request, equipamento_id):
     return render(request, 'retirar_equipamento.html', {'equipamento': equipamento})
 
 
-
 @login_required
 def devolver_equipamento(request, equipamento_id):
     """
@@ -386,56 +391,65 @@ def devolver_equipamento(request, equipamento_id):
     return render(request, 'devolver_equipamento.html', {'equipamento': equipamento})
 
 
-def dashboard_data_table(request):
-    equipamentos_data = []
-    
-    # Obtem todos os equipamentos
-    equipamentos = Equipamento.objects.all()
+def dashboard_view_porcentagem_modelo():
+    # Consulta ao banco de dados: contagem de retiradas por modelo de equipamento
+    total_retiradas = RegistroTransacao.objects.filter(tipo="Retirada").count()
 
-    for equipamento in equipamentos:
-        if equipamento.status == 'Retirada':
-            # Busca o último registro de transação do equipamento, se existir
-            ultima_transacao = RegistroTransacao.objects.filter(equipamento=equipamento).order_by('-timestamp').first()
+    # Agrupa por modelo de equipamento e conta as retiradas
+    retiradas_por_modelo = (
+        RegistroTransacao.objects.filter(tipo="Retirada")
+        .values(modelo=F('equipamento__modelo'))  # Substitui 'equipamento__modelo' no agrupamento
+        .annotate(total=Count('id'))  # Conta as retiradas por modelo
+    )
 
-            # Se a transação for encontrada
-            if ultima_transacao:
-                equipamentos_data.append({
-                    'id': equipamento.id,
-                    'serial_number': equipamento.serial_number,
-                    'modelo': equipamento.modelo,
-                    'marca': equipamento.marca,
-                    'status': equipamento.status,
-                    'tipo_transacao': ultima_transacao.tipo,
-                    'usuario': ultima_transacao.usuario_login,
-                    'timestamp': ultima_transacao.timestamp,
-                })
-            else:
-                # Caso não haja transação, preenche com dados padrão
-                equipamentos_data.append({
-                    'id': equipamento.id,
-                    'serial_number': equipamento.serial_number,
-                    'modelo': equipamento.modelo,
-                    'marca': equipamento.marca,
-                    'status': equipamento.status,
-                    'tipo_transacao': 'Não encontrado',
-                    'usuario': 'Não disponível',
-                    'timestamp': 'Não disponível',
-                })
-        else:
+    # Calcula a porcentagem de retiradas por modelo
+    data = {
+        "categories": [item['modelo'] for item in retiradas_por_modelo],
+        "series": [
+            round((item['total'] / total_retiradas) * 100, 2)
+            for item in retiradas_por_modelo
+        ],
+    }
+
+    # Retorna os dados como JSON
+    return json.dumps(data)
+
+
+def pda_retirado_por_turno():
+    # Anotar o dia da semana e o turno do usuário
+    registros = RegistroTransacao.objects.annotate(
+        weekday=ExtractWeekDay('timestamp')
+    ).values(
+        'weekday', 'usuario_login'
+    ).annotate(
+        total=Count('id')
+    )
+
+    # Preparar os dados para o gráfico
+    data = {}
+    turnos = {'T1': 'Manhã', 'T2': 'Tarde', 'T3': 'Noite'}
+    for registro in registros:
+        weekday = registro['weekday']
+        login = registro['usuario_login']
+        usuario = Usuario.objects.filter(login_usuario=login).first()
+        if not usuario:
             continue
-    
-    # Caso não haja equipamentos, adiciona uma linha indicando que não há dados
-    if not equipamentos_data:
-        equipamentos_data.append({
-            'id': '-',
-            'serial_number': '-',
-            'modelo': '-',
-            'marca': '-',
-            'status': '-',
-            'tipo_transacao': '-',
-            'usuario': '-',
-            'timestamp': '-',
-        })
-    
-    print(equipamentos_data)
-    return render(request, 'index.html', {'equipamentos_data': equipamentos_data})
+        turno = usuario.turno_usuario
+        total = registro['total']
+
+        if weekday not in data:
+            data[weekday] = {t: 0 for t in turnos.values()}
+        data[weekday][turnos[turno]] += total
+
+    # Organizar os dados para o Chart.js
+    labels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+    chart_data = {"labels": labels, "datasets": []}
+    cores = ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 99, 132, 1)']
+
+    for i, turno in enumerate(turnos.values()):
+        dataset = {"label": turno, "data": [], "borderColor": cores[i], "fill": False}
+        for day in range(1, 8):  # Dias da semana: 1 (domingo) a 7 (sábado)
+            dataset["data"].append(data.get(day, {}).get(turno, 0))
+        chart_data["datasets"].append(dataset)
+
+    return json.dumps(chart_data)
