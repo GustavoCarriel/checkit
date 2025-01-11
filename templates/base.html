@@ -66,35 +66,35 @@
 </script>
 
 <script>
-  let logoutTimer;
+  // let logoutTimer;
 
-  // Tempo limite de inatividade em milissegundos (10 minutos)
-  const TIMEOUT = 10 * 60 * 1000;
+  // // Tempo limite de inatividade em milissegundos (10 minutos)
+  // const TIMEOUT = 10 * 60 * 1000;
 
-  function resetTimer() {
-    clearTimeout(logoutTimer); // Limpa o timer anterior
-    logoutTimer = setTimeout(() => {
-      // Faz uma requisição de logout após o tempo limite
-      fetch("{% url 'auto_logout' %}", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}",
-        },
-      }).then(() => {
-        // Redireciona para a página de login após o logout
-        window.location.href = "{% url 'login' %}";
-        alert("Tempo limite de ociosidade excedido!")
-      });
-    }, TIMEOUT);
-  }
+  // function resetTimer() {
+  //   clearTimeout(logoutTimer); // Limpa o timer anterior
+  //   logoutTimer = setTimeout(() => {
+  //     // Faz uma requisição de logout após o tempo limite
+  //     fetch("{% url 'auto_logout' %}", {
+  //       method: "POST",
+  //       headers: {
+  //         "X-CSRFToken": "{{ csrf_token }}",
+  //       },
+  //     }).then(() => {
+  //       // Redireciona para a página de login após o logout
+  //       window.location.href = "{% url 'login' %}";
+  //       // alert("Tempo limite de ociosidade excedido!")
+  //     });
+  //   }, TIMEOUT);
+  // }
 
-  // Reinicia o timer em cada evento de interação
-  document.addEventListener("mousemove", resetTimer);
-  document.addEventListener("keydown", resetTimer);
-  document.addEventListener("click", resetTimer);
+  // // Reinicia o timer em cada evento de interação
+  // document.addEventListener("mousemove", resetTimer);
+  // document.addEventListener("keydown", resetTimer);
+  // document.addEventListener("click", resetTimer);
 
-  // Inicializa o timer quando a página é carregada
-  resetTimer();
+  // // Inicializa o timer quando a página é carregada
+  // resetTimer();
 </script>
 
 </html>

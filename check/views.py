@@ -8,10 +8,10 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
-from django.db.models import Count, F
+from django.db.models import Count, F, Max
 import json
 from django.db.models.functions import ExtractWeekDay
-
+from datetime import timedelta
 
 
 
@@ -31,7 +31,6 @@ def index(request):
     # ====================================
     # Data Table
     # ====================================
-
     equipamentos_data = []
     # Obtem todos os equipamentos
     equipamentos = Equipamento.objects.all()
@@ -81,10 +80,12 @@ def index(request):
         })
 
 
-    chart_data = dashboard_view_porcentagem_modelo()
-    chart_data2 = pda_retirado_por_turno()
+    data_dashboard_info = dashboard_info_view()
+    data_view_porcentagem = dashboard_view_porcentagem_modelo()
+    data_pda_por_turno = pda_retirado_por_turno()
+    data_pda_controle = dashboard_view_pda()
 
-    return render(request, 'index.html', {'equipamentos_data': equipamentos_data, 'chart_data': chart_data, 'chart_data2': chart_data2})
+    return render(request, 'index.html', {"data_dashboard_info": data_dashboard_info, 'equipamentos_data': equipamentos_data, 'chart_data_porcentagem': data_view_porcentagem, 'chart_data_por_turno': data_pda_por_turno, 'data_pda_controle': data_pda_controle})
 
 
 def custom_login(request):
@@ -163,7 +164,6 @@ def auto_logout(request):
     return redirect('login')  # Redirecione para a página de login
 
 
-
 @login_required
 def cadastrar_equipamentos(request):
     """
@@ -197,7 +197,6 @@ def cadastrar_equipamentos(request):
             return redirect('cadastrar_equipamento')  # Redireciona para limpar o formulário
 
     return render(request, 'cadastro_equipamento.html')
-
 
 
 @login_required
@@ -286,7 +285,6 @@ def listar_equipamentos_em_operacao(request):
     return render(request, 'listar_equipamentos.html', {'equipamentos': equipamentos_page})
 
 
-
 @login_required
 def retirar_equipamento(request, equipamento_id):
     """
@@ -309,6 +307,7 @@ def retirar_equipamento(request, equipamento_id):
         # Obtém o login do usuário do formulário
         login_usuario = request.POST.get('usuario_login')
         usuario = buscar_usuario(login_usuario)
+        login_registrado = request.user.username
 
         # Verifica se o usuário foi encontrado
         if not usuario:
@@ -326,6 +325,7 @@ def retirar_equipamento(request, equipamento_id):
                 equipamento=equipamento,
                 usuario_login=usuario.login_usuario,
                 tipo='Retirada',
+                login_registrado = login_registrado,
                 timestamp=timezone.now()
             )
 
@@ -360,6 +360,7 @@ def devolver_equipamento(request, equipamento_id):
     if request.method == 'POST':
         login_usuario = request.POST.get('usuario_login')
         usuario = buscar_usuario(login_usuario)
+        login_registrado = request.user.username
 
         if not usuario:
             messages.error(request, "Usuário não encontrado. Por favor, insira o login correto.")
@@ -378,6 +379,7 @@ def devolver_equipamento(request, equipamento_id):
                 equipamento=equipamento,
                 usuario_login=login_usuario,
                 tipo='Devolução',
+                login_registrado = login_registrado,
                 timestamp=timezone.now()
             )
             equipamento.save()
@@ -416,8 +418,10 @@ def dashboard_view_porcentagem_modelo():
 
 
 def pda_retirado_por_turno():
-    # Anotar o dia da semana e o turno do usuário
-    registros = RegistroTransacao.objects.annotate(
+    # Filtrar registros apenas de retirada e anotar o dia da semana
+    registros = RegistroTransacao.objects.filter(
+        tipo='Retirada'  # Considerar apenas retiradas
+    ).annotate(
         weekday=ExtractWeekDay('timestamp')
     ).values(
         'weekday', 'usuario_login'
@@ -453,3 +457,49 @@ def pda_retirado_por_turno():
         chart_data["datasets"].append(dataset)
 
     return json.dumps(chart_data)
+
+
+def dashboard_view_pda():
+    # Consulta ao banco de dados: contagem de retiradas por modelo de equipamento
+    total_em_operacao = Equipamento.objects.filter(status="Retirado").count()
+    total_disponivel = Equipamento.objects.filter(status="Disponível").count()
+    total_manutencao= Equipamento.objects.filter(status="Manutenção").count()
+
+    # Dados para o gráfico
+    data = {
+        "categories": ["Em operação", "Disponível", "Manutenção"],
+        "series": [total_em_operacao, total_disponivel, total_manutencao],
+    }
+
+    return json.dumps(data)
+
+
+def dashboard_info_view():
+    # Consulta ao banco de dados: contagem de retiradas por modelo de equipamento
+    total_em_operacao = Equipamento.objects.filter(status="Retirado").count()
+    total_disponivel = Equipamento.objects.filter(status="Disponível").count()
+    total_manutencao = Equipamento.objects.filter(status="Manutenção").count()
+
+    # Inicializa o contador de alertas
+    total_alerta_entrega = 0
+
+    # Verifica equipamentos retirados e calcula o tempo desde a retirada
+    retirados = Equipamento.objects.filter(status="Retirado")
+    for equipamento in retirados:
+        # Verifica se o equipamento está em operação e obtém a última vez que foi retirado
+        ultima_retirada = RegistroTransacao.objects.filter(equipamento=equipamento).aggregate(max_timestamp=Max('timestamp'))['max_timestamp']
+        
+        if ultima_retirada:
+            tempo_decorrido = timezone.now() - ultima_retirada  # Calcula o tempo desde a retirada
+            if tempo_decorrido > timedelta(hours=10):
+                total_alerta_entrega += 1
+
+    # Dados da dashboard
+    data = {
+        "total_em_operacao": total_em_operacao,
+        "total_disponivel": total_disponivel,
+        "total_manutencao": total_manutencao,
+        "total_alerta_entrega": total_alerta_entrega,
+    }
+
+    return json.dumps(data)

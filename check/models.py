@@ -43,6 +43,7 @@ class RegistroTransacao(models.Model):
     equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE)
     usuario_login = models.CharField(max_length=50)  # Armazenamos o login como string
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+    login_registrado = models.CharField(max_length=100, default='desconhecido')
     timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
