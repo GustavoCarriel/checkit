@@ -9,10 +9,16 @@
 
     <ul class="list-unstyled components">
         <li class="px-2">
-            <a href="{% url 'index' %}"><i class="bi bi-bar-chart-fill"></i> Dashboard</a>
+            <a href="{% url 'index' %}"><i class="bi bi-bar-chart-fill me-1"></i> Dashboard</a>
         </li>
         <li class="px-2">
-            <a href="{% url 'buscar_equipamentos' %}"><i class="bi bi-search"></i></i> Buscar</a>
+            <a href="{% url 'buscar_equipamentos' %}"><i class="bi bi-search me-1"></i></i> Buscar</a>
+        </li>
+        <li class="px-2">
+            <a href="{% url 'cadastrar_usuario' %}"><i class="bi bi-person-fill-add me-1"></i></i> Cadastro de Usuário</a>
+        </li>
+        <li class="px-2">
+            <a href="{% url 'cadastrar_equipamento' %}"><i class="bi bi-file-plus me-1"></i></i> Cadastrar PDA</a>
         </li>
     </ul>
 </nav>

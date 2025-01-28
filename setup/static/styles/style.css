@@ -172,3 +172,50 @@ a.article:hover {
     display: flex;
     flex-direction: column;
 }
+
+/* Estilo para o ícone de alerta */
+.alert-icon {
+    position: absolute;
+    top: -30px;
+    left: 10px;
+    z-index: 10; /* Garante que o ícone fique acima de outros elementos */
+    width: 30px; /* Ajuste do tamanho do ícone */
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-icon::before {
+    content: ''; /* Cria o fundo pulsante */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Tamanho igual ao do ícone */
+    height: 100%;
+    border-radius: 50%; /* Torna o fundo circular */
+    background-color: rgba(255, 0, 0, 0.5); /* Cor do fundo com transparência */
+    animation: pulse 3s infinite; /* Animação de pulsar */
+    z-index: -1; /* Coloca o fundo atrás do ícone */
+}
+
+/* Animação de pulsar */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.5); /* Aumenta o tamanho do fundo */
+        opacity: 0.2; /* Torna o fundo mais transparente */
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+}
+
+/* Ajuste do card para garantir que o ícone de alerta flutue corretamente */
+.card-item {
+    position: relative;
+}

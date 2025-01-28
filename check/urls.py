@@ -11,5 +11,6 @@ urlpatterns = [
     path('cadastrar_usuario/', views.cadastrar_usuario, name='cadastrar_usuario'),
     path('login/', views.custom_login, name='login'),
     path('auto_logout/', views.auto_logout, name='auto_logout'),
-    path('dashboard_data_table/', views.dashboard_data_table, name='data_table'),
+    path('dashboard_nao_entregue/', views.dashboard_view_porcentagem_modelo, name='dashboard_view_porcentagem_modelo'),
+    path('importar_excel/', views.importar_excel, name='importar_excel'),
     ]

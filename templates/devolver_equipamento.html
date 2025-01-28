@@ -3,13 +3,6 @@
 {% load static %}
 {% block content %}
 <div class="container my-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
     <form action="{% url 'devolver_equipamento' equipamento.id %}" method="POST">
         {% csrf_token %}
         <div class="mb-3">

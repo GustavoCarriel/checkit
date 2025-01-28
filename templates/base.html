@@ -30,6 +30,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+
+    <!-- Gráfico Chart.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
 </head>
 
@@ -62,36 +65,36 @@
   });
 </script>
 
-<!-- <script>
-  let logoutTimer;
+<script>
+  // let logoutTimer;
 
-  // Tempo limite de inatividade em milissegundos (10 minutos)
-  const TIMEOUT = 10 * 60 * 1000;
+  // // Tempo limite de inatividade em milissegundos (10 minutos)
+  // const TIMEOUT = 10 * 60 * 1000;
 
-  function resetTimer() {
-    clearTimeout(logoutTimer); // Limpa o timer anterior
-    logoutTimer = setTimeout(() => {
-      // Faz uma requisição de logout após o tempo limite
-      fetch("{% url 'auto_logout' %}", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}",
-        },
-      }).then(() => {
-        // Redireciona para a página de login após o logout
-        window.location.href = "{% url 'login' %}";
-        alert("Tempo limite de ociosidade excedido!")
-      });
-    }, TIMEOUT);
-  }
+  // function resetTimer() {
+  //   clearTimeout(logoutTimer); // Limpa o timer anterior
+  //   logoutTimer = setTimeout(() => {
+  //     // Faz uma requisição de logout após o tempo limite
+  //     fetch("{% url 'auto_logout' %}", {
+  //       method: "POST",
+  //       headers: {
+  //         "X-CSRFToken": "{{ csrf_token }}",
+  //       },
+  //     }).then(() => {
+  //       // Redireciona para a página de login após o logout
+  //       window.location.href = "{% url 'login' %}";
+  //       // alert("Tempo limite de ociosidade excedido!")
+  //     });
+  //   }, TIMEOUT);
+  // }
 
-  // Reinicia o timer em cada evento de interação
-  document.addEventListener("mousemove", resetTimer);
-  document.addEventListener("keydown", resetTimer);
-  document.addEventListener("click", resetTimer);
+  // // Reinicia o timer em cada evento de interação
+  // document.addEventListener("mousemove", resetTimer);
+  // document.addEventListener("keydown", resetTimer);
+  // document.addEventListener("click", resetTimer);
 
-  // Inicializa o timer quando a página é carregada
-  resetTimer();
-</script> -->
+  // // Inicializa o timer quando a página é carregada
+  // resetTimer();
+</script>
 
 </html>
