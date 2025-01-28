@@ -12,7 +12,10 @@ from django.db.models import Count, F, Max
 import json
 from django.db.models.functions import ExtractWeekDay
 from datetime import timedelta
+<<<<<<< HEAD
 import pandas as pd
+=======
+>>>>>>> b60e2b0cca2c51b86a831732c1a432c19fd3c3f8
 
 
 
@@ -293,7 +296,10 @@ def buscar_equipamentos(request):
     return render(request, 'buscar_equipamento.html', {'equipamentos': equipamentos, 'erro': erro})
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b60e2b0cca2c51b86a831732c1a432c19fd3c3f8
 def buscar_usuario(login_usuario):
     """
     Busca um usuário pelo login de usuário fornecido.
@@ -344,6 +350,10 @@ def listar_equipamentos_em_operacao(request):
     # Renderiza o template 'listar_equipamentos.html' passando os dados paginados
     return render(request, 'listar_equipamentos.html', {'equipamentos': equipamentos_page})
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b60e2b0cca2c51b86a831732c1a432c19fd3c3f8
 @login_required
 def retirar_equipamento(request, equipamento_id):
     """
@@ -897,6 +907,7 @@ def dashboard_info_view():
         "total_alerta_entrega": total_alerta_entrega,
     }
 
+<<<<<<< HEAD
     return json.dumps(data)
 
 
@@ -931,3 +942,6 @@ def importar_excel(request):
             return redirect('importar_excel')
     
     return render(request, 'importar_excel.html')
+=======
+    return json.dumps(data)
+>>>>>>> b60e2b0cca2c51b86a831732c1a432c19fd3c3f8

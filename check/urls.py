@@ -12,5 +12,8 @@ urlpatterns = [
     path('login/', views.custom_login, name='login'),
     path('auto_logout/', views.auto_logout, name='auto_logout'),
     path('dashboard_nao_entregue/', views.dashboard_view_porcentagem_modelo, name='dashboard_view_porcentagem_modelo'),
+<<<<<<< HEAD
     path('importar_excel/', views.importar_excel, name='importar_excel'),
+=======
+>>>>>>> b60e2b0cca2c51b86a831732c1a432c19fd3c3f8
     ]
